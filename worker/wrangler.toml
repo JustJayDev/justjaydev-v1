@@ -1,0 +1,12 @@
+# Cloudflare Worker config for "Ask Jay's assistant".
+#
+# The ANTHROPIC_API_KEY is NOT set here. It is stored as a Worker secret
+# (see README-setup.md step 4) so it never enters git or the site bundle.
+
+name = "jj-assistant"
+main = "src/index.js"
+compatibility_date = "2025-01-01"
+
+# Keeps request logs out of Cloudflare, so no message text is ever stored.
+[observability]
+enabled = false
