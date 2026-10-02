@@ -36,7 +36,7 @@ const ROUTES: Record<string, PageComponent> = {
 }
 
 const SITE = 'https://justjaydev.github.io/justjaydev-v1'
-const IMAGE = SITE + '/og-image.svg'
+const IMAGE = SITE + '/og-image.png'
 
 const esc = (s: string) =>
   s
