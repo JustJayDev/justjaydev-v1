@@ -1,92 +1,39 @@
 /*
  * CONTENT LAYER - single source of truth for every page.
- * Edit values here; pages import from this file only.
- * NOTE: project titles/descriptions below are PLACEHOLDERS. Replace with real work.
+ *
+ * RULE: nothing in this file is invented. Only add entries Jay has
+ * explicitly given. Empty arrays are valid and render an empty state -
+ * that is intentional, not a bug.
  */
 
-export type Status = 'live' | 'building' | 'planned' | 'shipped'
+export type IdeaStatus = 'planned'
 
-export interface Project {
-  slug: string
-  index: string
+export interface BuildIdea {
+  id: string
   title: string
-  status: Status
-  year: string
-  summary: string
-  detail: string
-  stack: string[]
-  link?: string
-  repo?: string
-  variant: number
+  blurb: string
+  status: IdeaStatus
 }
 
-export const projects: Project[] = [
+export interface GameTitle {
+  id: string
+  name: string
+  platform: string
+  note: string
+}
+
+/* Build queue - planned ideas only. Empty until Jay supplies real ones. */
+export const buildQueue: BuildIdea[] = []
+
+/* Games Jay has actually stated he plays. No invented stats anywhere. */
+export const games: GameTitle[] = [
   {
-    slug: 'this-site',
-    index: '01',
-    title: 'justjaydev-v1',
-    status: 'live',
-    year: '2026',
-    summary: 'This site. Blueprint Terminal design system, built and deployed entirely from a phone.',
-    detail:
-      'React + TypeScript + Vite + Tailwind, deployed to GitHub Pages. No desktop, no laptop - every line authored and shipped from Android.',
-    stack: ['React', 'TypeScript', 'Vite', 'Tailwind'],
-    link: 'https://justjaydev.github.io/justjaydev-v1/',
-    variant: 0,
-  },
-  {
-    slug: 'project-slot-02',
-    index: '02',
-    title: 'Project Slot 02',
-    status: 'building',
-    year: '2026',
-    summary: 'Placeholder - replace with a real project title and one-line summary.',
-    detail:
-      'Placeholder description. Explain what it does, what problem it solves, and the interesting technical constraint you worked around.',
-    stack: ['Slot', 'Slot'],
-    variant: 1,
-  },
-  {
-    slug: 'project-slot-03',
-    index: '03',
-    title: 'Project Slot 03',
-    status: 'building',
-    year: '2026',
-    summary: 'Placeholder - replace with a real project title and one-line summary.',
-    detail:
-      'Placeholder description. Explain what it does, what problem it solves, and the interesting technical constraint you worked around.',
-    stack: ['Slot', 'Slot'],
-    variant: 2,
-  },
-  {
-    slug: 'project-slot-04',
-    index: '04',
-    title: 'Project Slot 04',
-    status: 'planned',
-    year: '2026',
-    summary: 'Placeholder - replace with a real project title and one-line summary.',
-    detail:
-      'Placeholder description. Explain what it does, what problem it solves, and the interesting technical constraint you worked around.',
-    stack: ['Slot', 'Slot'],
-    variant: 3,
-  },
-  {
-    slug: 'project-slot-05',
-    index: '05',
-    title: 'Project Slot 05',
-    status: 'planned',
-    year: '2026',
-    summary: 'Placeholder - replace with a real project title and one-line summary.',
-    detail:
-      'Placeholder description. Explain what it does, what problem it solves, and the interesting technical constraint you worked around.',
-    stack: ['Slot', 'Slot'],
-    variant: 4,
+    id: 'ffmax',
+    name: 'Free Fire Max',
+    platform: 'Mobile',
+    note: 'Main game. Grinder.',
   },
 ]
 
-export const statusMeta: Record<Status, { label: string; tone: string }> = {
-  live: { label: 'live', tone: 'text-accent border-accent/40' },
-  building: { label: 'building', tone: 'text-txt border-line' },
-  planned: { label: 'planned', tone: 'text-dim border-line' },
-  shipped: { label: 'shipped', tone: 'text-accent border-accent/40' },
-}
+/* Nothing has shipped yet. Kept explicit so no page can imply otherwise. */
+export const shippedCount = 0
