@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && npm run prerender",
+    "build": "npm run build:facts && vite build && npm run prerender",
+    "build:facts": "esbuild scripts/build-facts.ts --bundle --platform=node --format=cjs --outfile=node_modules/.cache/build-facts.cjs --log-level=warning && node node_modules/.cache/build-facts.cjs",
     "prerender": "esbuild scripts/prerender.tsx --bundle --platform=node --format=cjs --outfile=node_modules/.cache/prerender.cjs --log-level=warning && node node_modules/.cache/prerender.cjs",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit"
