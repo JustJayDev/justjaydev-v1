@@ -25,7 +25,7 @@ export default function MockupFrame({ variant = 0, title }: { variant?: number; 
       <div className="absolute left-2 top-2 h-3 w-3 border-l border-t border-accent/50" />
       <div className="absolute bottom-2 right-2 h-3 w-3 border-b border-r border-accent/50" />
       {/* mono watermark label */}
-      <span className="absolute right-2 top-2 font-mono text-[9px] uppercase tracking-[0.18em] text-dim/60">
+      <span className="absolute right-2 top-2 font-mono text-[9px] uppercase tracking-[0.18em] text-dim">
         {title ?? 'mockup'}
       </span>
       {/* glyph composition */}
