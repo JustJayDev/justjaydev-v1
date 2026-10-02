@@ -5,7 +5,8 @@ export default function NotFound() {
   return (
     <div className="py-16 text-center">
       <Reveal>
-        <p className="font-mono text-5xl font-bold text-accent">404</p>
+        {/* the 404 code IS this page's heading, so screen readers announce it */}
+        <h1 className="font-mono text-5xl font-bold text-accent">404</h1>
         <p className="mt-4 font-mono text-xs text-dim">command not found: page</p>
         <p className="mx-auto mt-4 max-w-sm text-sm text-dim">
           That route does not exist on this site.
