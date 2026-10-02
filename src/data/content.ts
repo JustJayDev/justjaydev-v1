@@ -19,6 +19,22 @@ export const identity = {
   builtFromScratch: true,
 } as const
 
+/* Initials used for the avatar monogram until Jay supplies a real photo. */
+export const avatar = {
+  /* empty string = no photo yet, the monogram renders instead */
+  photo: '' as string,
+  initials: 'JK',
+  alt: 'Profile photo of Jay Kumar',
+} as const
+
+/* ---------- contact ---------- */
+export const contact = {
+  /* empty = no address given yet; the slot renders as an honest empty state */
+  email: '' as string,
+  /* what the slot shows before an email exists */
+  emailPending: 'not added yet',
+} as const
+
 /* ---------- routes + per-page SEO ---------- */
 export interface PageMeta {
   path: string
@@ -46,13 +62,15 @@ export const pages: PageMeta[] = [
     path: '/games',
     nav: 'Games',
     title: 'Games - JustJayDev',
-    description: 'Games Jay Kumar actually plays, including Free Fire Max.',
+    description:
+      'Games Jay Kumar (JustJayDev) actually plays. Free Fire Max, the main one, with a screenshot slot, rank and achievements added when he has them.',
   },
   {
     path: '/devlog',
     nav: 'Devlog',
     title: 'Devlog - JustJayDev',
-    description: 'Short, honest notes from the build. Newest entry first.',
+    description:
+      'Short, honest build notes from Jay Kumar. Progress on justjaydev-v1, newest entry first, nothing polished into looking finished.',
   },
   {
     path: '/lab',
@@ -72,7 +90,8 @@ export const pages: PageMeta[] = [
     path: '/links',
     nav: 'Links',
     title: 'Links - JustJayDev',
-    description: 'Every place to find JustJayDev.',
+    description:
+      'Every place to find JustJayDev: GitHub, and the social slots Jay has not filled in yet.',
   },
 ]
 
@@ -89,12 +108,23 @@ export const buildQueue: BuildIdea[] = []
 /* Nothing has been shipped yet. Explicit, so no page implies otherwise. */
 export const shippedCount = 0
 
-/* ---------- games (given by Jay) ---------- */
+/* ---------- games (given by Jay) ----------
+ *
+ * TO ADD A GAME: append one object to this array. That is the entire change -
+ * the Games page, its slots and the empty states all read from here.
+ */
 export interface GameTitle {
   id: string
   name: string
   platform: string
   note: string
+  /* '' = no screenshot yet, the blueprint banner shows instead */
+  image: string
+  imageAlt: string
+  /* '' = no rank given yet, the slot renders as an empty state */
+  rank: string
+  /* [] = none given yet, the slot renders as an empty state */
+  achievements: { id: string; label: string; detail: string }[]
 }
 
 export const games: GameTitle[] = [
@@ -103,6 +133,10 @@ export const games: GameTitle[] = [
     name: 'Free Fire Max',
     platform: 'Mobile',
     note: 'Main game. Grinder.',
+    image: '',
+    imageAlt: 'Free Fire Max gameplay screenshot',
+    rank: '',
+    achievements: [],
   },
 ]
 
@@ -153,6 +187,15 @@ export const links: LinkItem[] = [
   },
 ]
 
+/* Slots for socials Jay has not provided yet. Rendered as honest empty rows,
+   never faked out with a guessed URL. */
+export const reservedSlots: { id: string; label: string }[] = [
+  { id: 'x', label: 'X / Twitter' },
+  { id: 'instagram', label: 'Instagram' },
+  { id: 'youtube', label: 'YouTube' },
+  { id: 'discord', label: 'Discord' },
+]
+
 /* ---------- about (facts only) ---------- */
 export const aboutFacts: { k: string; v: string }[] = [
   { k: 'NAME', v: identity.name },
@@ -161,3 +204,15 @@ export const aboutFacts: { k: string; v: string }[] = [
   { k: 'PLAYS', v: identity.mainGame },
   { k: 'BUILDS ON', v: identity.builtOn },
 ]
+
+/* ---------- assistant widget ----------
+ *
+ * `workerUrl` is the ONLY value Jay has to paste in. While it stays empty the
+ * widget renders "Assistant coming soon" and the rest of the site is unaffected.
+ * Setup steps live in /worker/README-setup.md.
+ */
+export const assistant = {
+  /* paste the deployed Worker URL, e.g. 'https://jj-assistant.<you>.workers.dev' */
+  workerUrl: '' as string,
+  factsNote: 'Answers only from approved facts about Jay.',
+} as const
