@@ -7,7 +7,7 @@ import { useEffect } from 'react'
 export const SITE = {
   name: 'JustJayDev',
   url: 'https://justjaydev.github.io/justjaydev-v1',
-  image: '/justjaydev-v1/og-image.svg',
+  image: '/justjaydev-v1/og-image.png',
   theme: '#070b10',
   accent: '#22d3ee',
 } as const
