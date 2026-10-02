@@ -2,8 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ==========================================================================
+   RESPONSIVE POLISH - no user-agent sniffing, CSS only.
+   Breakpoints: 360 (small phone), 768 (tablet), 1280 (desktop).
+   ========================================================================== */
 html { scroll-behavior: smooth; }
 body { @apply bg-bg text-txt font-body antialiased; }
+/* never let a long word or URL push the layout wider than the viewport */
+body { overflow-wrap: break-word; }
+@media (min-width: 1280px) {
+  body { font-size: 17px; }
+}
 
 /* blueprint grid backdrop */
 .bp-grid {
@@ -50,9 +59,126 @@ body { @apply bg-bg text-txt font-body antialiased; }
 
 /* ---- gentle press feedback ---- */
 a:active, button:active { transform: translateY(1px); }
-
 /* ---- selection ---- */
 ::selection { background: rgba(34,211,238,0.28); color: #e8edf2; }
+
+/* ==========================================================================
+   TAP TARGETS - 44px minimum for anything tappable on a phone.
+   Sized here rather than per-component so it cannot be forgotten.
+   ========================================================================== */
+a, button, [role='button'], summary, input, textarea, select {
+  touch-action: manipulation;
+}
+@media (pointer: coarse) {
+  /* inline links inside a paragraph keep normal text flow, but every
+     standalone control (nav, buttons, cards) gets a 44px hit area */
+  nav a, header button, .tap, button.tap, a.tap {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+  footer a, footer button { min-height: 44px; display: inline-flex; align-items: center; }
+}
+
+/* ==========================================================================
+   HOVER - only where a real pointer exists.
+   Prevents "sticky hover" on touch devices, where a tap can leave an element
+   looking permanently hovered.
+   ========================================================================== */
+@media (hover: none), (pointer: coarse) {
+  /* neutralise hover-only decoration on touch */
+  .hover-only { display: none !important; }
+  a:hover, button:hover { transform: none; }
+}
+
+/* ==========================================================================
+   PAGE TRANSITIONS - light fade, disabled entirely under reduced motion.
+   ========================================================================== */
+.page-enter { animation: page-in 260ms ease-out both; }
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ==========================================================================
+   BACK TO TOP - fixed, thumb-reachable, never covers content.
+   ========================================================================== */
+.to-top {
+  position: fixed;
+  right: 16px;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 45;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #22d3ee;
+  background: #070b10;
+  color: #22d3ee;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: opacity 180ms ease, transform 180ms ease, visibility 180ms;
+}
+.to-top[data-show='true'] { opacity: 1; visibility: visible; transform: none; }
+.to-top:hover { background: #0d141d; }
+
+/* ==========================================================================
+   ASSISTANT FAB + PANEL
+   ========================================================================== */
+.assist-fab {
+  position: fixed;
+  right: 16px;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 60;
+  min-height: 48px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #22d3ee;
+  background: #070b10;
+  color: #22d3ee;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+.assist-fab:hover { background: #0d141d; }
+/* when the panel is open the FAB sits above the to-top button */
+body[data-assistant-open='true'] .to-top { display: none; }
+
+/* ==========================================================================
+   AVATAR MONOGRAM
+   ========================================================================== */
+.mono-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #0d141d;
+  border: 1px solid #1a2432;
+  color: #22d3ee;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+/* ==========================================================================
+   IMAGE SLOT - blueprint placeholder with fixed aspect ratio so nothing
+   shifts when a real screenshot is added later.
+   ========================================================================== */
+.img-slot {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  overflow: hidden;
+  background: #070b10;
+}
+.img-slot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
 
 /* ---- reduced motion: kill everything, including JS-driven ---- */
 @media (prefers-reduced-motion: reduce) {
@@ -63,4 +189,8 @@ a:active, button:active { transform: translateY(1px); }
     scroll-behavior: auto !important;
   }
   html { scroll-behavior: auto; }
+  /* the new page transition and panel entry are animations, so they are
+     cancelled outright rather than merely shortened */
+  .page-enter { animation: none !important; opacity: 1 !important; transform: none !important; }
+  .to-top, .assist-fab { transition: none !important; }
 }
