@@ -22,7 +22,9 @@ const MAX_REPLY_CHARS = 600
 const RATE_LIMIT = 8 // requests per minute, per visitor
 const RATE_WINDOW_MS = 60_000
 const DAILY_LIMIT = 100 // requests per 24h across ALL visitors (quota guard)
-const DAILY_WINDOW_MS = 86_400_000
+const DAILY_WINDOW_MS = 86_400_000 // fallback window when KV is unavailable
+const DAILY_TTL_SECONDS = 172_800 // KV entry expiry: 48h, so yesterday's key dies on its own
+const KV_KEY_PREFIX = 'daily:'
 
 /* Atria - OpenAI-compatible endpoint */
 const ATRIA_URL = 'https://api.atria-asi.ai/v1/chat/completions'
@@ -69,12 +71,40 @@ function rateLimited(ip) {
 
 /**
  * DAILY CAP on total requests across every visitor, so strangers cannot use up
- * Jay's own Atria quota. Kept in memory: resets on isolate recycle, which errs
- * safe (it can only lower the count, never raise it past the cap).
+ * Jay's own Atria quota. Backed by Cloudflare KV (binding: RATE_KV) so the
+ * counter SURVIVES isolate recycles and deploys, unlike an in-memory counter.
+ *
+ * KV has no atomic increment, so concurrent requests can race and the count can
+ * under-report by a few. That errs safe here: the cap protects quota, and a
+ * small race can never push the count past DAILY_LIMIT by a meaningful amount.
+ *
+ * If the KV binding is missing (namespace not created yet) or KV throws, it falls
+ * back to an in-memory counter, so the cap still protects Jay's quota and a KV
+ * problem can never take the assistant offline. The fallback under-reports across
+ * isolate recycles, which errs safe.
  */
-function dailyCapReached() {
+async function dailyCapReached(env) {
+  const kv = env && env.RATE_KV
+  if (!kv) return memoryDailyCapReached()
+  const key = KV_KEY_PREFIX + new Date().toISOString().slice(0, 10) // daily:YYYY-MM-DD
+  try {
+    const raw = await kv.get(key, 'text')
+    const count = raw ? Number.parseInt(raw, 10) || 0 : 0
+    if (count >= DAILY_LIMIT) return true
+    await kv.put(key, String(count + 1), { expirationTtl: DAILY_TTL_SECONDS })
+    return false
+  } catch {
+    return false // never let the cap break the assistant
+  }
+}
+
+/**
+ * Fallback daily counter used only when the KV binding is unavailable. Resets when
+ * the isolate is recycled, which can only lower the count, never raise it.
+ */
+function memoryDailyCapReached() {
   const now = Date.now()
-  const state = dailyCapReached.state ?? (dailyCapReached.state = { count: 0, since: now })
+  const state = memoryDailyCapReached.state ?? (memoryDailyCapReached.state = { count: 0, since: now })
   if (now - state.since > DAILY_WINDOW_MS) {
     state.count = 0
     state.since = now
@@ -122,7 +152,7 @@ export default {
     }
 
     /* 3. daily total cap - protects Jay's quota from all visitors combined */
-    if (dailyCapReached()) {
+    if (await dailyCapReached(env)) {
       return json({ error: RESTING_MESSAGE }, 429, origin)
     }
 
