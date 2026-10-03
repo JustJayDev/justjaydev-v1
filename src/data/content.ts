@@ -312,6 +312,6 @@ export const aboutFacts: { k: string; v: string }[] = [
  */
 export const assistant = {
   /* paste the deployed Worker URL, e.g. 'https://jj-assistant.<you>.workers.dev' */
-  workerUrl: '' as string,
+  workerUrl: 'https://jj-assistant.justjaydev.workers.dev' as string,
   factsNote: 'Answers only from approved facts about @JustJayDev.',
 } as const
