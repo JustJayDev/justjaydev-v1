@@ -97,7 +97,7 @@ export const pages: PageMeta[] = [
     nav: 'Links',
     title: 'Links - JustJayDev',
     description:
-      'Every place to find JustJayDev: GitHub, and the social slots Jay has not filled in yet.',
+      'Every place to find JustJayDev: GitHub, and the social slots that have not been filled in yet.',
   },
 ]
 
@@ -313,5 +313,5 @@ export const aboutFacts: { k: string; v: string }[] = [
 export const assistant = {
   /* paste the deployed Worker URL, e.g. 'https://jj-assistant.<you>.workers.dev' */
   workerUrl: '' as string,
-  factsNote: 'Answers only from approved facts about Jay.',
+  factsNote: 'Answers only from approved facts about @JustJayDev.',
 } as const
