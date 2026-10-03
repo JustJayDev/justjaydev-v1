@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import Reveal from '../components/Reveal'
-import { buildQueue, shippedCount, devlog, identity } from '../data/content'
+import { buildQueue, shippedCount, devlog, identity, now } from '../data/content'
 
 export default function Home() {
   const planned = buildQueue.length
@@ -52,6 +52,42 @@ export default function Home() {
                 <div className="mt-1 font-mono text-lg text-accent">{r.value}</div>
               </div>
             ))}
+          </div>
+        </Reveal>
+      </section>
+
+      {/* ---------- now ----------
+       * Playing and building. Anything Jay has not filled in shows an
+       * honest pending state instead of invented content.
+       */}
+      <section className="mt-12">
+        <Reveal>
+          <h2 className="mono-label">// now</h2>
+          <div className="panel mt-3 divide-y divide-line">
+            {[
+              { k: 'PLAYING', v: now.playing, n: now.playingNote },
+              { k: 'BUILDING', v: now.building, n: now.buildingNote },
+            ].map((row) => {
+              const empty = row.v.trim() === ''
+              return (
+                <div
+                  key={row.k}
+                  className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-4 py-3"
+                >
+                  <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-dim">
+                    {row.k}
+                  </span>
+                  <span className="min-w-0 text-right">
+                    <span
+                      className={'block font-mono text-sm ' + (empty ? 'italic text-dim' : 'text-accent')}
+                    >
+                      {empty ? now.pending : row.v}
+                    </span>
+                    <span className="block text-xs text-dim">{row.n}</span>
+                  </span>
+                </div>
+              )
+            })}
           </div>
         </Reveal>
       </section>
