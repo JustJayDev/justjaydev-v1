@@ -18,7 +18,7 @@ function Placeholder() {
     return (
       <div className="assist-fab" aria-hidden="true">
         <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-        Ask Jay&rsquo;s assistant
+        Ask Jay’s assistant
       </div>
     )
   }
