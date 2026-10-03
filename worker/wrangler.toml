@@ -1,19 +1,34 @@
 # Cloudflare Worker config for "Ask Jay's assistant".
 #
-# The ANTHROPIC_API_KEY is NOT set here. It is stored as a Worker secret
-# (see README-setup.md step 4) so it never enters git or the site bundle.
+# The Atria key is NOT set here. It is stored as the Worker secret ATRIA_API_KEY
+# (see README-setup.md) so it never enters git or the site bundle.
 
 name = "jj-assistant"
+
+# Pinned so wrangler skips the account membership lookup, which this
+# API token is not allowed to perform (it 403s on /memberships).
+account_id = "0a1eea9131a18e38e7ed948e4c90db56"
 main = "src/index.js"
 compatibility_date = "2025-01-01"
 
 # Keeps request logs out of Cloudflare, so no message text is ever stored.
+# Publish at https://jj-assistant.justjaydev.workers.dev
+workers_dev = true
+
 [observability]
 enabled = false
 
-# KV namespace backing the persistent daily cap (binding used by src/index.js).
-# Create it with:  npx wrangler kv namespace create RATE_KV
-# then paste the printed id below.
-[[kv_namespaces]]
-binding = "RATE_KV"
-id = "REPLACE_WITH_KV_NAMESPACE_ID"
+# KV namespace for the persistent daily cap is NOT bound yet.
+# The current Cloudflare API token has Workers Scripts:Edit but not the Workers KV
+# permission, so the namespace cannot be created. The Worker degrades to an
+# in-memory daily counter in the meantime, which still protects the Atria quota but
+# resets when the isolate is recycled.
+#
+# To enable the persistent cap:
+#   1. Add the "Workers KV Storage: Edit" permission to the API token.
+#   2. npx wrangler kv namespace create RATE_KV
+#   3. Uncomment the block below and paste the printed id.
+#
+# [[kv_namespaces]]
+# binding = "RATE_KV"
+# id = "<paste the namespace id here>"
