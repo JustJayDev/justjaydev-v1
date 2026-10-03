@@ -38,7 +38,7 @@ export function applyHead(doc: Document, title: string, description: string, pat
   const url = SITE.url + path
 
   upsertMeta(doc, 'name', 'description', description)
-  upsertMeta(doc, 'name', 'author', 'Jay Kumar (JustJayDev)')
+  upsertMeta(doc, 'name', 'author', '@JustJayDev')
   upsertMeta(doc, 'name', 'theme-color', SITE.theme)
 
   upsertMeta(doc, 'property', 'og:type', 'website')
@@ -70,7 +70,7 @@ export function applyHead(doc: Document, title: string, description: string, pat
     name: SITE.name,
     url: SITE.url + path,
     description,
-    author: { '@type': 'Person', name: 'Jay Kumar', alternateName: 'JustJayDev' },
+    author: { '@type': 'Person', name: '@JustJayDev', alternateName: 'JustJayDev' },
   })
 }
 
