@@ -9,7 +9,7 @@
  */
 import { renderToString } from 'react-dom/server'
 import { StaticRouter } from 'react-router'
-import { writeFileSync, mkdirSync, readFileSync } from 'node:fs'
+import { writeFileSync, mkdirSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { createElement } from 'react'
 import Layout from '../src/components/Layout'
@@ -188,3 +188,51 @@ writeFileSync(
 )
 
 console.log('sitemap + robots written (' + pages.length + ' urls)')
+
+/* BARE-NAME GUARD (shipping output)
+ *
+ * This runs LAST, after vite build, so it can check exactly what ships: the
+ * prerendered HTML and the built assets. It lives here rather than in
+ * build-facts.ts because that script runs BEFORE the build, where it would only
+ * ever see the previous bundle and block the build that would fix the leak.
+ *
+ * Built files are minified and contain real URLs with `//` in them, so they are
+ * scanned raw: stripping `//` would blank the rest of a line after the first
+ * https:// and hide a genuine leak.
+ */
+const BARE_NAME_SHIPPED = /(?<![A-Za-z@/])Jay(?!Dev)/g
+const shippedHits: string[] = []
+const scanShipped = (dir: string) => {
+  let entries: string[] = []
+  try {
+    entries = readdirSync(dir) as string[]
+  } catch {
+    return
+  }
+  for (const entry of entries) {
+    const full = join(dir, entry)
+    let st
+    try {
+      st = statSync(full)
+    } catch {
+      continue
+    }
+    if (st.isDirectory()) scanShipped(full)
+    else if (/\.(html|js|css|webmanifest)$/.test(entry)) {
+      const txt = readFileSync(full, 'utf-8')
+      txt.split(/\r?\n/).forEach((ln, i) => {
+        BARE_NAME_SHIPPED.lastIndex = 0
+        if (BARE_NAME_SHIPPED.test(ln)) shippedHits.push(full + ':' + (i + 1))
+      })
+    }
+  }
+}
+scanShipped('dist')
+if (shippedHits.length > 0) {
+  console.error('\nBARE-NAME GUARD FAILED in the built output - refusing to ship.\n')
+  for (const h of [...new Set(shippedHits)]) console.error('  - ' + h)
+  console.error('\nA bare first name in shipped text exposes a real name. Fix the source ' +
+    'line that produced it, then rebuild. Do not delete this guard.\n')
+  process.exit(1)
+}
+console.log('bare-name guard passed: shipping output is handle-only')
