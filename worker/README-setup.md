@@ -1,21 +1,12 @@
-# Setting up the assistant Worker
+# Assistant Worker - setup (Atria)
 
-The site ships with the assistant switched off. Until you finish these steps,
-the button reads **"Assistant coming soon"** and nothing is sent anywhere.
+The site widget calls this Worker. The Worker calls **Atria**
+(`https://api.atria-asi.ai/v1`, model `Atria-Dawn-Preview`).
 
-The Worker lives in this `worker/` folder. It calls the Anthropic API on your
-behalf. Your API key never goes near the website, the git repo or the browser:
-it is stored only as a Cloudflare Worker **secret**.
+The Atria key lives **only** in the Cloudflare secret `ATRIA_API_KEY`. It is not
+in this repo, not in the site bundle, and never logged.
 
----
-
-## 1. Get an Anthropic API key
-
-From the Anthropic Console, create an API key and add credit.
-
-## 2. Create the Worker
-
-Install the Wrangler CLI and log in:
+## 1. Install wrangler and log in
 
 ```bash
 cd worker
@@ -23,74 +14,54 @@ npm install
 npx wrangler login
 ```
 
+`wrangler login` prints a URL. Open it on any device, approve, then come back.
+
+## 2. Set the secret (do this before or after deploy)
+
+```bash
+npx wrangler secret put ATRIA_API_KEY
+```
+
+It prompts for the value. Paste the Atria key, press Enter. It is stored
+encrypted by Cloudflare and is not readable afterwards - that is the point.
+
 ## 3. Deploy
 
 ```bash
 npx wrangler deploy
 ```
 
-Wrangler prints the URL when it finishes, for example:
+It prints the Worker URL, e.g.
+`https://jj-assistant.<your-subdomain>.workers.dev`
 
-```
-https://jj-assistant.YOUR-NAME.workers.dev
-```
+## 4. Paste the URL into the site
 
-## 4. Add the API key as a secret
-
-Still inside `worker/`:
-
-```bash
-npx wrangler secret put ANTHROPIC_API_KEY
-```
-
-Paste the key when prompted. It is saved encrypted by Cloudflare, invisible to
-git, and not printed back to you.
-
-## 5. Turn the assistant on in the site
-
-Open `src/data/content.ts` and find:
+Open `src/data/content.ts` and set:
 
 ```ts
 export const assistant = {
-  workerUrl: '', // paste your Worker URL here to switch the widget on
-  ...
+  workerUrl: 'https://jj-assistant.<your-subdomain>.workers.dev',
+  // ...
 }
 ```
 
-Put the URL from step 3 between the quotes. Redeploy the site and the button
-becomes live.
+Then `npm run build:facts` (keeps `worker/src/facts.js` in sync) and rebuild
+the site.
 
----
+## Notes
 
-## How it behaves
+- `wrangler.toml` may need your Worker name/account changed to match.
+- The origin allowlist only accepts `https://justjaydev.github.io`. A request
+  from any other origin gets 403. Keep it that way.
+- Limits live at the top of `src/index.js`: 8 requests/min per visitor, 100
+  requests/day total across all visitors, 800-char messages, 600-char replies.
+- When the daily cap is hit the widget shows "Assistant is resting, try later."
+- To change the daily cap, edit `DAILY_LIMIT`.
+- Never commit a key. If you ever paste one into a file, remove it and rotate.
 
-- Only `https://justjaydev.github.io` may call it. Any other origin is refused.
-- 8 messages per minute per visitor, then it asks the visitor to wait.
-- Messages are capped at 800 characters, replies at 600.
-- It answers only from the approved facts generated from `src/data/content.ts`.
-  If you did not put something on the site, the assistant does not know it.
-- Cloudflare request logging is off, so message text is not stored there.
+## Privacy guard
 
-## Changing what it knows
-
-Edit `src/data/content.ts`, then from the site root:
-
-```bash
-npm run build:facts
-```
-
-That regenerates both `src/data/assistant-facts.ts` and `worker/src/facts.js`.
-Push the repo, then run `npx wrangler deploy` again.
-
-## Testing
-
-```bash
-npx wrangler dev
-```
-
-The assistant needs the secret to answer. Locally it is read from a `.dev.vars`
-file in this folder, which must never be committed:
-
-```
-ANTHROPIC_API_KEY=sk-ant-...
-```
+`facts.js` is generated from `src/data/assistant-facts.ts`. It contains only
+the handle `@JustJayDev` - no real full name, no exact location, no age, height
+or weight. The system prompt tells the assistant to say it does not know and to
+point to the site pages rather than invent or confirm anything.
