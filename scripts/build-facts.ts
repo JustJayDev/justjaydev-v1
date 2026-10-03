@@ -274,12 +274,13 @@ console.log('privacy guard passed: no age / height / weight / real-name / locati
  * built bundle, and fails the build instead of publishing the leak.
  */
 const BARE_NAME = /(?<![A-Za-z@/])Jay(?!Dev)/g
+// scan every component and page, not a hand-picked list: a hand-picked list missed
+// AssistantLoader.tsx once already, and a leak is exactly the kind of thing you
+// forget to add to a list. Directories are walked recursively by scanDir.
 const USER_FACING = [
-  'src/components/AssistantWidget.tsx',
-  'src/components/SeoHead.tsx',
-  'src/data/content.ts',
-  'src/data/assistant-facts.ts',
+  'src/components',
   'src/pages',
+  'src/data',
   'index.html',
   'public/404.html',
   'public/manifest.webmanifest',
@@ -296,6 +297,9 @@ const stripComments = (txt: string): string => {
   out = out.replace(/\/\/.*$/gm, '') // line comments
   return out
 }
+// Source files are stripped of comments first, so a bare first name in a comment
+// stays fine while a bare first name in real text fails the build. The built
+// bundle is checked separately and later, in scripts/prerender.tsx.
 const scanText = (rel: string, txt: string) => {
   stripComments(txt).split(/\r?\n/).forEach((ln, i) => {
     BARE_NAME.lastIndex = 0
@@ -323,17 +327,6 @@ for (const rel of USER_FACING) {
   } catch {
     /* file absent: nothing to scan */
   }
-}
-const distDir = 'dist'
-try {
-  for (const entry of readdirSync(distDir) as unknown as string[]) {
-    const child = join(distDir, entry)
-    if (statSync(child).isFile() && /\.(html|js|css|webmanifest)$/.test(entry)) {
-      scanText(child, readFileSync(child, 'utf-8'))
-    }
-  }
-} catch {
-  /* no dist yet: the source scan already covered it */
 }
 if (bareHits.length > 0) {
   console.error('\nBARE-NAME GUARD FAILED - use @JustJayDev, never a first name.\n')
