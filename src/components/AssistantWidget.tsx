@@ -114,7 +114,7 @@ export default function AssistantWidget() {
         onClick={() => setOpen((v) => !v)}
       >
         <span aria-hidden="true">{open ? '[ CLOSE ]' : '[ ASK ]'}</span>
-        <span className="sr-only">Ask Jay&rsquo;s assistant</span>
+        <span className="sr-only">Ask Jay’s assistant</span>
       </button>
 
       {open && (
@@ -128,7 +128,7 @@ export default function AssistantWidget() {
         >
           <div className="flex items-center justify-between border-b border-line px-4 py-3">
             <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
-              ask jay&rsquo;s assistant
+              ask jay’s assistant
             </p>
             <button
               type="button"
@@ -146,7 +146,7 @@ export default function AssistantWidget() {
           >
             {msgs.length === 0 && (
               <p className="text-sm text-dim">
-                Ask about Jay&rsquo;s site facts. It answers only from approved facts and will
+                Ask about Jay’s site facts. It answers only from approved facts and will
                 say so when it does not know.
               </p>
             )}
