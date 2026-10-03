@@ -8,9 +8,9 @@
 
 /* ---------- identity (given by Jay) ---------- */
 export const identity = {
-  name: 'Jay Kumar',
+  name: '@JustJayDev',
   handle: 'JustJayDev',
-  location: 'India',
+  location: '',
   tagline: "Mobile gamer with a builder's mind",
   motto: 'A King Never Wavers',
   creed: 'The definition of victory.',
@@ -23,8 +23,8 @@ export const identity = {
 export const avatar = {
   /* empty string = no photo yet, the monogram renders instead */
   photo: '' as string,
-  initials: 'JK',
-  alt: 'Profile photo of Jay Kumar',
+  initials: 'JJ',
+  alt: 'Profile photo of @JustJayDev',
 } as const
 
 /* ---------- contact ---------- */
@@ -52,28 +52,28 @@ export const pages: PageMeta[] = [
     nav: 'Home',
     title: 'JustJayDev - Mobile gamer with a builder\'s mind',
     description:
-      'Jay Kumar (JustJayDev). Mobile gamer who builds on his phone. Played site, games and an honest build queue.',
+      '@JustJayDev. Mobile gamer who builds on his phone. Played site, games and an honest build queue.',
   },
   {
     path: '/projects',
     nav: 'Projects',
     title: 'Build Queue - JustJayDev',
     description:
-      'The queue of what Jay Kumar plans to build from scratch. Nothing shipped yet.',
+      'The queue of what @JustJayDev plans to build from scratch. Nothing shipped yet.',
   },
   {
     path: '/games',
     nav: 'Games',
     title: 'Games - JustJayDev',
     description:
-      'Games Jay Kumar (JustJayDev) actually plays. Free Fire Max, the main one, with a screenshot slot, rank and achievements added when he has them.',
+      'Games @JustJayDev actually plays. Free Fire Max, the main one, with a screenshot slot, rank and achievements added when he has them.',
   },
   {
     path: '/devlog',
     nav: 'Devlog',
     title: 'Devlog - JustJayDev',
     description:
-      'Short, honest build notes from Jay Kumar. Progress on justjaydev-v1, newest entry first, nothing polished into looking finished.',
+      'Short, honest build notes from @JustJayDev. Progress on justjaydev-v1, newest entry first, nothing polished into looking finished.',
   },
   {
     path: '/lab',
@@ -90,7 +90,7 @@ export const pages: PageMeta[] = [
     nav: 'About',
     title: 'About - JustJayDev',
     description:
-      'Jay Kumar, known as JustJayDev. Mobile gamer who builds on his phone.',
+      '@JustJayDev. Mobile gamer who builds on his phone.',
   },
   {
     path: '/links',
@@ -295,13 +295,14 @@ export const reservedSlots: { id: string; label: string }[] = [
 ]
 
 /* ---------- about (facts only) ---------- */
+/* PRIVACY GUARD: any slot whose value is empty is dropped from the list, so a
+   row can never reappear with an invented or stale value. Real full name and
+   exact location are deliberately absent. Only the handle is shown. */
 export const aboutFacts: { k: string; v: string }[] = [
-  { k: 'NAME', v: identity.name },
   { k: 'HANDLE', v: '@' + identity.handle },
-  { k: 'BASED IN', v: identity.location },
   { k: 'PLAYS', v: identity.mainGame },
   { k: 'BUILDS ON', v: identity.builtOn },
-]
+].filter((row) => row.v.trim() !== '')
 
 /* ---------- assistant widget ----------
  *
