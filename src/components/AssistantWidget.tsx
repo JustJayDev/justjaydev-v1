@@ -114,7 +114,7 @@ export default function AssistantWidget() {
         onClick={() => setOpen((v) => !v)}
       >
         <span aria-hidden="true">{open ? '[ CLOSE ]' : '[ ASK ]'}</span>
-        <span className="sr-only">Ask Jay’s assistant</span>
+        <span className="sr-only">Ask the site assistant</span>
       </button>
 
       {open && (
@@ -123,7 +123,7 @@ export default function AssistantWidget() {
           ref={panelRef}
           role="dialog"
           aria-modal="false"
-          aria-label="Ask Jay's assistant"
+          aria-label="Ask the site assistant"
           className="panel fixed inset-x-0 bottom-0 z-[70] flex max-h-[80vh] flex-col border-t border-accent sm:inset-x-auto sm:right-4 sm:bottom-20 sm:w-[380px] sm:border"
         >
           <div className="flex items-center justify-between border-b border-line px-4 py-3">
@@ -146,7 +146,7 @@ export default function AssistantWidget() {
           >
             {msgs.length === 0 && (
               <p className="text-sm text-dim">
-                Ask about Jay’s site facts. It answers only from approved facts and will
+                Ask about the site’s facts. It answers only from approved facts and will
                 say so when it does not know.
               </p>
             )}
