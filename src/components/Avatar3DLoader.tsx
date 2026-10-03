@@ -78,7 +78,7 @@ export default function Avatar3DLoader() {
           <Suspense
             fallback={
               <p className="avatar3d-loading" role="status">
-                Starting 3D&hellip;
+                Starting 3D…
               </p>
             }
           >
