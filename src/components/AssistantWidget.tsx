@@ -128,7 +128,7 @@ export default function AssistantWidget() {
         >
           <div className="flex items-center justify-between border-b border-line px-4 py-3">
             <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
-              ask jay’s assistant
+              Ask the site assistant
             </p>
             <button
               type="button"
