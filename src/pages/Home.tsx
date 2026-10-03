@@ -19,11 +19,11 @@ export default function Home() {
         <Reveal>
           <p className="mono-label">// operator online</p>
           <h1 className="mt-3 font-display text-4xl font-bold leading-tight sm:text-5xl">
-            Mobile gamer with a <span className="text-accent">builder&rsquo;s mind</span>
+            Mobile gamer with a <span className="text-accent">builder’s mind</span>
           </h1>
           <p className="mt-4 max-w-xl text-dim">
             {identity.name} is {identity.handle}, a mobile gamer who builds on his{' '}
-            {identity.builtOn.toLowerCase()}. Nothing here is finished yet &mdash; that changes soon.
+            {identity.builtOn.toLowerCase()}. Nothing here is finished yet — that changes soon.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
