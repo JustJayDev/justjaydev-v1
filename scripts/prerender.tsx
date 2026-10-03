@@ -36,6 +36,13 @@ const ROUTES: Record<string, PageComponent> = {
 }
 
 const SITE = 'https://justjaydev.github.io/justjaydev-v1'
+/*
+ * MUST match <BrowserRouter basename> in src/main.tsx AND `base` in
+ * vite.config.ts. React Router's useHref() prepends this to every Link
+ * href, so without it the prerendered HTML ships root-relative hrefs
+ * that break on hard refresh and direct visits under a project path.
+ */
+const BASENAME = '/justjaydev-v1'
 const IMAGE = SITE + '/og-image.png'
 
 const esc = (s: string) =>
@@ -98,7 +105,9 @@ function renderPage(
   const body = renderToString(
     createElement(
       StaticRouter as never,
-      { location: path },
+      /* basename makes Link hrefs absolute to the deploy path; location must
+         carry the same prefix because Router strips the basename off it */
+      { location: BASENAME + path, basename: BASENAME },
       createElement(Layout, null, createElement(Comp)),
     ),
   )
