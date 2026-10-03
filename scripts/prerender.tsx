@@ -65,13 +65,13 @@ function headTags(
     name: 'JustJayDev',
     url,
     description,
-    author: { '@type': 'Person', name: 'Jay Kumar', alternateName: 'JustJayDev' },
+    author: { '@type': 'Person', name: '@JustJayDev', alternateName: 'JustJayDev' },
   })
 
   return [
     `<title>${esc(title)}</title>`,
     `<meta name="description" content="${esc(description)}" />`,
-    '<meta name="author" content="Jay Kumar (JustJayDev)" />',
+    '<meta name="author" content="@JustJayDev" />',
     // the 404 is an error page, never an indexable result
     indexable ? '' : '<meta name="robots" content="noindex, follow" />',
     '<meta name="theme-color" content="#070b10" />',
