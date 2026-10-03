@@ -16,7 +16,27 @@ npx wrangler login
 
 `wrangler login` prints a URL. Open it on any device, approve, then come back.
 
-## 2. Set the secret (do this before or after deploy)
+## 2. Create the KV namespace (the daily cap lives here)
+
+```bash
+cd worker
+npx wrangler kv namespace create RATE_KV
+```
+
+It prints an **id**. Open `wrangler.toml` and replace
+`REPLACE_WITH_KV_NAMESPACE_ID` with that id, under:
+
+```toml
+[[kv_namespaces]]
+binding = "RATE_KV"
+id = "..."
+```
+
+The counter is a KV key `daily:YYYY-MM-DD` with a 48h TTL, so it survives isolate
+recycles and deploys. If the binding is missing the Worker still runs, just without
+the shared daily cap.
+
+## 3. Set the secret (do this before or after deploy)
 
 ```bash
 npx wrangler secret put ATRIA_API_KEY
@@ -25,7 +45,7 @@ npx wrangler secret put ATRIA_API_KEY
 It prompts for the value. Paste the Atria key, press Enter. It is stored
 encrypted by Cloudflare and is not readable afterwards - that is the point.
 
-## 3. Deploy
+## 4. Deploy
 
 ```bash
 npx wrangler deploy
@@ -34,7 +54,7 @@ npx wrangler deploy
 It prints the Worker URL, e.g.
 `https://jj-assistant.<your-subdomain>.workers.dev`
 
-## 4. Paste the URL into the site
+## 5. Paste the URL into the site
 
 Open `src/data/content.ts` and set:
 
@@ -53,8 +73,9 @@ the site.
 - `wrangler.toml` may need your Worker name/account changed to match.
 - The origin allowlist only accepts `https://justjaydev.github.io`. A request
   from any other origin gets 403. Keep it that way.
-- Limits live at the top of `src/index.js`: 8 requests/min per visitor, 100
-  requests/day total across all visitors, 800-char messages, 600-char replies.
+- Limits live at the top of `src/index.js`: 8 requests/min per visitor (in memory),
+  100 requests/day total across all visitors (KV-backed, persists), 800-char
+  messages, 600-char replies.
 - When the daily cap is hit the widget shows "Assistant is resting, try later."
 - To change the daily cap, edit `DAILY_LIMIT`.
 - Never commit a key. If you ever paste one into a file, remove it and rotate.
