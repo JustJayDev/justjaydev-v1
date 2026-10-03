@@ -18,7 +18,7 @@ export default function About() {
           <Avatar size={72} />
           <div className="min-w-0">
             <p className="font-display text-lg font-bold leading-snug">{identity.name}</p>
-            <p className="font-mono text-xs text-accent">&commat;{identity.handle}</p>
+            <p className="font-mono text-xs text-accent">@{identity.handle}</p>
             <p className="mt-3 text-sm leading-relaxed text-dim">
               {identity.name} is {identity.handle}, a mobile gamer who builds on his{' '}
               {identity.builtOn.toLowerCase()}. He plays {identity.mainGame}.
