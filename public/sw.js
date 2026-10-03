@@ -11,7 +11,7 @@
  *
  * The version string below is bumped on every release to drop old caches.
  */
-const VERSION = 'v1.1.0'
+const VERSION = 'v1.2.0'
 const SHELL = 'jj-shell-' + VERSION
 const ASSETS = 'jj-assets-' + VERSION
 
