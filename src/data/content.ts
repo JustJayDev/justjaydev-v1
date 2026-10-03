@@ -41,6 +41,9 @@ export interface PageMeta {
   nav: string
   title: string
   description: string
+  /* true = the route still works, prerenders and appears in the sitemap, it is
+     just kept out of the nav until it has real content to show */
+  navHidden?: boolean
 }
 
 export const pages: PageMeta[] = [
@@ -78,6 +81,9 @@ export const pages: PageMeta[] = [
     title: 'Lab - JustJayDev',
     description:
       'A space for AI and automation experiments. No experiments published yet.',
+    /* no experiments exist yet, so the tab is hidden until one does. The route
+       still resolves, prerenders and is listed in the sitemap. */
+    navHidden: true,
   },
   {
     path: '/about',
@@ -139,6 +145,98 @@ export const games: GameTitle[] = [
     achievements: [],
   },
 ]
+
+/* ---------- gamer card + 3D avatar (round 3) ----------
+ *
+ * PRIVACY: gamer details only. Age, height, weight, real full name and location
+ * are deliberately absent here and are never added to these objects, the
+ * hotspots, or the assistant facts file.
+ *
+ * Every '' below is an honest empty state on the page, never invented content.
+ */
+export const gamer = {
+  handle: '@' + identity.handle,
+  /* what he plays on; he builds and plays on a phone */
+  device: identity.builtOn,
+  deviceNote: 'Phone',
+  mainGame: identity.mainGame,
+  mainGameNote: 'Main game. Grinder.',
+  /* '' = he has not stated a role yet */
+  role: '' as string,
+  rolePending: 'not added yet',
+  /* '' = no rank given yet */
+  rank: '' as string,
+  rankPending: 'rank not added yet',
+  achievements: [] as string[],
+  achievementsPending: 'no achievements added yet',
+  /* what he is building right now: this site, which is a real, stated fact */
+  building: 'justjaydev-v1',
+  buildingNote: 'This site. Built from scratch, on a phone.',
+} as const
+
+/*
+ * 3D avatar.
+ *
+ * `modelUrl` is the ONE thing Jay has to supply. While it is empty the About
+ * page shows the static poster and a clear drop-in instruction, and no 3D code
+ * is downloaded at all - not even the viewer.
+ *
+ * TO ADD THE MODEL: export a stylized GLB under 2 MB and save it as
+ *   public/models/avatar.glb
+ * then set modelUrl to '/justjaydev-v1/models/avatar.glb'.
+ */
+export const avatar3d = {
+  modelUrl: '' as string,
+  /* hard ceiling so a heavy file can never tank the page */
+  maxBytes: 2 * 1024 * 1024,
+  /* shown in place of the model, and quoted in the drop-in hint */
+  expectedPath: 'public/models/avatar.glb',
+  expectedUrl: '/justjaydev-v1/models/avatar.glb',
+  posterAlt:
+    'Stylized 3D avatar placeholder for JustJayDev. No 3D model uploaded yet.',
+  hint:
+    'No 3D model yet. Drop a .glb under 2 MB at public/models/avatar.glb and it appears here automatically.',
+  /* rotation speed of the idle spin, degrees per second */
+  spinDegPerSec: 14,
+} as const
+
+/*
+ * Hotspots shown on the 3D avatar. GAMER DETAILS ONLY - the same facts as the
+ * gamer card, positioned on the model. A hotspot with an empty value renders the
+ * pending label instead of a guess.
+ *
+ * x / y are percentages across the avatar frame.
+ */
+export interface Hotspot {
+  id: string
+  label: string
+  x: number
+  y: number
+  value: string
+  pending: string
+}
+
+export const avatarHotspots: Hotspot[] = [
+  { id: 'handle', label: 'HANDLE', x: 50, y: 20, value: gamer.handle, pending: 'not added yet' },
+  { id: 'game', label: 'MAIN GAME', x: 22, y: 42, value: gamer.mainGame, pending: 'not added yet' },
+  { id: 'role', label: 'ROLE', x: 78, y: 46, value: gamer.role, pending: gamer.rolePending },
+  { id: 'rank', label: 'RANK', x: 26, y: 68, value: gamer.rank, pending: gamer.rankPending },
+  { id: 'device', label: 'DEVICE', x: 74, y: 70, value: gamer.deviceNote, pending: 'not added yet' },
+  { id: 'building', label: 'BUILDING', x: 50, y: 86, value: gamer.building, pending: 'not added yet' },
+]
+
+/* ---------- now (home) ----------
+ *
+ * Two honest lines: what he is playing and what he is building. Empty strings
+ * render as a pending empty state, never as invented filler.
+ */
+export const now = {
+  playing: identity.mainGame,
+  playingNote: 'Main game. Grinder.',
+  building: gamer.building,
+  buildingNote: gamer.buildingNote,
+  pending: 'not added yet',
+} as const
 
 /* ---------- devlog (real, already-happened) ---------- */
 export interface DevlogEntry {
