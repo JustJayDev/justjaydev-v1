@@ -1,6 +1,8 @@
 import PageHead from '../components/PageHead'
 import Reveal from '../components/Reveal'
 import Avatar from '../components/Avatar'
+import Avatar3DLoader from '../components/Avatar3DLoader'
+import GamerCard from '../components/GamerCard'
 import { aboutFacts, identity, contact, links, reservedSlots } from '../data/content'
 
 export default function About() {
@@ -23,6 +25,22 @@ export default function About() {
             </p>
           </div>
         </div>
+      </Reveal>
+
+      {/* ---------- 3D avatar + gamer card ----------
+       * The loader ships a static poster in the prerendered HTML and only
+       * pulls 3D code once this section is scrolled into view.
+       */}
+      <Reveal delay={0.08}>
+        <section className="mt-8" aria-labelledby="avatar-h">
+          <h2 id="avatar-h" className="mono-label">
+            // avatar
+          </h2>
+          <div className="mt-3 grid gap-3 lg:grid-cols-2 lg:items-start">
+            <Avatar3DLoader />
+            <GamerCard />
+          </div>
+        </section>
       </Reveal>
 
       <Reveal delay={0.1}>
