@@ -180,6 +180,278 @@ body[data-assistant-open='true'] .to-top { display: none; }
 .img-slot img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 
+/* ==========================================================================
+   3D AVATAR (round 3)
+
+   The poster is the default state and is prerendered, so this whole block
+   costs no JavaScript. When 3D is switched on the poster fades out and the
+   canvas fades in - but the poster is always left in the DOM underneath, so
+   turning 3D off is instant and there is never an empty box.
+   ========================================================================== */
+.avatar3d-shell { min-width: 0; }
+
+.avatar3d-frame {
+  position: relative;
+  width: 100%;
+  /* fixed square frame: nothing shifts when the model arrives */
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border: 1px solid #1a2432;
+  background: #070b10;
+}
+
+/* ---- static poster (always present) ---- */
+.avatar3d-poster { position: absolute; inset: 0; }
+.avatar3d-poster-grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.7;
+}
+.avatar3d-poster-svg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 74%;
+  height: 74%;
+  transform: translate(-50%, -52%);
+}
+.avatar3d-poster-mark {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-color: #22d3ee;
+  border-style: solid;
+  opacity: 0.5;
+}
+.avatar3d-poster-mark.tl { top: 10px; left: 10px; border-width: 2px 0 0 2px; }
+.avatar3d-poster-mark.tr { top: 10px; right: 10px; border-width: 2px 2px 0 0; }
+.avatar3d-poster-mark.bl { bottom: 10px; left: 10px; border-width: 0 0 2px 2px; }
+.avatar3d-poster-mark.br { bottom: 10px; right: 10px; border-width: 0 2px 2px 0; }
+.avatar3d-poster-label {
+  position: absolute;
+  bottom: 14px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8b98a8;
+}
+.avatar3d-poster-sub { display: block; font-size: 9px; opacity: 0.75; margin-top: 2px; }
+
+/* while 3D is running the poster sits behind it, so switching back is instant */
+.avatar3d-frame[data-3d='on'] .avatar3d-poster { visibility: hidden; }
+
+/* ---- the WebGL stage ---- */
+.avatar3d-stage { position: absolute; inset: 0; display: flex; flex-direction: column; }
+.avatar3d-canvas { position: absolute; inset: 0; cursor: grab; touch-action: pan-y; }
+.avatar3d-canvas:active { cursor: grabbing; }
+.avatar3d-canvas canvas { display: block; width: 100%; height: 100%; }
+
+/* ---- hotspots: gamer details only ---- */
+.avatar3d-hotspots { position: absolute; inset: 0; margin: 0; padding: 0; list-style: none; }
+.avatar3d-hotspots > li { position: absolute; transform: translate(-50%, -50%); }
+.avatar3d-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px; /* touch target, even though the visible dot is smaller */
+  height: 44px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.avatar3d-dot-core {
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #22d3ee;
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.22);
+  transition: transform 160ms ease, background 160ms ease;
+}
+.avatar3d-dot:hover .avatar3d-dot-core { transform: scale(1.35); }
+.avatar3d-dot.is-open .avatar3d-dot-core { transform: scale(1.5); background: #e8edf2; }
+
+.avatar3d-tip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 2px);
+  transform: translateX(-50%);
+  min-width: max-content;
+  max-width: 190px;
+  padding: 6px 9px;
+  border: 1px solid #22d3ee;
+  background: #070b10;
+  text-align: left;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 160ms ease, visibility 160ms;
+  z-index: 5;
+}
+.avatar3d-tip[data-open='true'] { opacity: 1; visibility: visible; }
+.avatar3d-tip-label {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: #8b98a8;
+}
+.avatar3d-tip-value {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: #e8edf2;
+  overflow-wrap: anywhere;
+}
+.avatar3d-tip-value.is-empty { color: #8b98a8; font-style: italic; }
+
+/* ---- status + controls ---- */
+.avatar3d-status {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  right: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8b98a8;
+  pointer-events: none;
+}
+.avatar3d-controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px;
+  background: linear-gradient(to top, rgba(7, 11, 16, 0.94), rgba(7, 11, 16, 0));
+}
+.avatar3d-controls button {
+  padding: 6px 10px;
+  border: 1px solid #1a2432;
+  background: #070b10;
+  color: #e8edf2;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 160ms ease, color 160ms ease;
+}
+.avatar3d-controls button:hover { border-color: #22d3ee; color: #22d3ee; }
+.avatar3d-off { border-color: #22d3ee !important; color: #22d3ee !important; }
+
+/* "turn on 3D" sits over the poster, so 3D is always a deliberate choice */
+.avatar3d-enable {
+  position: absolute;
+  left: 50%;
+  bottom: 12%;
+  transform: translateX(-50%);
+  z-index: 6;
+  padding: 10px 18px;
+  border: 1px solid #22d3ee;
+  background: #070b10;
+  color: #22d3ee;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.avatar3d-enable:hover { background: #22d3ee; color: #070b10; }
+.avatar3d-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8b98a8;
+}
+.avatar3d-hint {
+  margin-top: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8b98a8;
+  overflow-wrap: anywhere;
+}
+
+/* ==========================================================================
+   GAMER CARD (round 3)
+   Sized to look deliberate on its own, so a screenshot of just this card is
+   useful. Label/value rows are a fixed two-column grid so nothing reflows.
+   ========================================================================== */
+.gamer-card {
+  border: 1px solid #1a2432;
+  background: #0d141d;
+  padding: 16px;
+}
+.gamer-card-head { border-bottom: 1px solid #1a2432; padding-bottom: 10px; }
+.gamer-card-name {
+  margin: 6px 0 0;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: #e8edf2;
+  overflow-wrap: anywhere;
+}
+.gamer-card-rows { margin: 0; }
+.gamer-row {
+  display: grid;
+  grid-template-columns: minmax(84px, 38%) 1fr;
+  gap: 10px;
+  align-items: baseline;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(26, 36, 50, 0.7);
+}
+.gamer-row:last-child { border-bottom: 0; }
+.gamer-row-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #8b98a8;
+}
+.gamer-row-value {
+  margin: 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: #e8edf2;
+  overflow-wrap: anywhere;
+}
+/* an empty field is visibly empty, and marked in text - never colour alone */
+.gamer-row-value.is-empty { color: #8b98a8; font-style: italic; }
+.gamer-card-foot {
+  margin: 12px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid #1a2432;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #8b98a8;
+  overflow-wrap: anywhere;
+}
+.gamer-card-foot-label {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: #22d3ee;
+  margin-bottom: 3px;
+}
+
 /* ---- reduced motion: kill everything, including JS-driven ---- */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -193,4 +465,11 @@ body[data-assistant-open='true'] .to-top { display: none; }
      cancelled outright rather than merely shortened */
   .page-enter { animation: none !important; opacity: 1 !important; transform: none !important; }
   .to-top, .assist-fab { transition: none !important; }
+  /* round 3: the 3D viewer must not animate on its own, and the poster,
+     hotspots and card must not cross-fade */
+  .avatar3d-dot-core, .avatar3d-tip, .avatar3d-controls button,
+  .avatar3d-enable { transition: none !important; }
+  .avatar3d-dot-core { transform: none !important; }
+  .avatar3d-dot:hover .avatar3d-dot-core,
+  .avatar3d-dot.is-open .avatar3d-dot-core { transform: none !important; }
 }
