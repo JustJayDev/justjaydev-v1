@@ -26,9 +26,11 @@ const SITE = 'https://justjaydev.github.io/justjaydev-v1'
 
 const facts = {
   about: {
+    /* handle only. basedIn is never emitted - exact location is private, so the
+       key is omitted rather than shipped as an empty string. */
     name: identity.name,
     handle: identity.handle,
-    basedIn: identity.location,
+    ...(identity.location === '' ? {} : { basedIn: identity.location }),
     tagline: identity.tagline,
     motto: identity.motto,
     creed: identity.creed,
@@ -94,7 +96,7 @@ const facts = {
   site: { url: SITE, pages: pages.map((p) => p.nav) },
 }
 
-const systemPrompt = `You are the assistant on Jay Kumar's personal website (JustJayDev).
+const systemPrompt = `You are the assistant on @JustJayDev's personal website (JustJayDev).
 
 STRICT RULES - follow every one:
 1. Answer ONLY using the APPROVED FACTS object below. It is the single source of truth.
@@ -225,6 +227,25 @@ function walk(node: unknown, path: string): void {
       break
     }
   }
+}
+
+/* IDENTITY GUARD - the only public identity is the handle.
+   A real full name must never come back through any field, and the location
+   slot must stay empty. Written generically so no real name is stored here. */
+if (typeof identity.name !== 'string' || identity.name.trim() === '') {
+  violations.push('identity.name is empty - the handle must be set')
+} else if (!identity.name.trim().startsWith('@')) {
+  violations.push('identity.name must start with @ (handle only)')
+} else if (
+  identity.name.trim().slice(1).toLowerCase() !== identity.handle.trim().toLowerCase()
+) {
+  violations.push('identity.name must be @ plus the handle, nothing else')
+}
+if (identity.location !== '') {
+  violations.push('identity.location must stay empty - exact location is private')
+}
+if (avatar.initials !== 'JJ') {
+  violations.push('avatar.initials must be the handle initials JJ')
 }
 
 walk(facts, 'facts')
