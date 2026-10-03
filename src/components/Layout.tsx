@@ -5,7 +5,11 @@ import BackToTop from './BackToTop'
 import AssistantLoader from './AssistantLoader'
 import { pages, identity } from '../data/content'
 
-const nav = pages.map((p) => ({ to: p.path, label: p.nav }))
+/* navHidden pages (Lab, while it has no experiments) stay routable and
+   prerendered, they are just kept out of the menu */
+const nav = pages
+  .filter((p) => p.navHidden !== true)
+  .map((p) => ({ to: p.path, label: p.nav }))
 
 export default function Layout({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false)
